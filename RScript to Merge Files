@@ -1,0 +1,17 @@
+setwd("Where the Files are Located")
+
+file_list <- list.files()
+
+dataset <- data.frame(matrix(ncol = 0, nrow = 0))
+
+for (file in file_list){
+
+      temp_dataset <-read.table(file, header=FALSE, sep=" ")
+      temp_dataset$file_name <- rep(file, nrow(temp_dataset))
+      dataset<-rbind(dataset, temp_dataset)
+      rm(temp_dataset)
+    }
+
+names(dataset) <- c("A","B","C","file_name")
+
+write.csv(dataset,'SAVEME.csv')
