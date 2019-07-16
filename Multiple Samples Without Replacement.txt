@@ -1,0 +1,21 @@
+df = read.csv(file='FILEPATH HERE')
+
+df2 = na.omit(df[,c(2:57)])
+
+dataset <- data.frame(matrix(ncol = 0, nrow = 0))
+
+for (i in 1:12) {
+  index = sample(1:nrow(df2), size=12, replace=F)
+  data = df2[index,]
+  #df2 = df2[-index,] If you want each sample to have unique users
+  desdata = describe(data)
+  means = desdata$mean
+  tmeans = t(means)
+  dataset<-rbind(dataset, tmeans)
+  rm(index,data,desdata,means,tmeans)
+}
+
+
+list = as.list(names(df2))
+
+names(dataset) <- c(list)

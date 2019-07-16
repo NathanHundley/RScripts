@@ -1,0 +1,217 @@
+# Importing data
+
+# EXCEL FILES
+# Don't do it unless you have to, will have to use foreign package
+
+# TEXT FILES
+# Load a spreadsheet that has been saved as tab-delimited text file
+# separator: \t is for tabs, sep = "," for commas
+# R converts missing to "NA"
+trends.txt <- read.table("C:/Users/nhundley/Desktop/R/GoogleTrends.txt", header = TRUE, sep = "\t")
+str(trends.txt)  # This gives structure of object sntxt
+View(trends.txt)
+?View
+
+# CSV FILES
+trends.csv <- read.csv("C:/Users/nhundley/Desktop/R/GoogleTrends.csv", header = TRUE)
+str(trends.csv)
+View(trends.csv)
+
+################################################################
+# Calculating Descriptives
+
+require("datasets")
+require("psych")
+describe(trends.csv)
+
+################################################################
+# Coding missing data
+
+x1 <- c(1, 2, 3, NA, 5)
+
+# To find missing values
+which(is.na(x1))  # Give index number
+
+# Ignore missing values with na.rm = T
+mean(x1, na.rm = T)
+
+# Replace missing values with 0 (or other number)
+x2 <- ifelse(is.na(x1), 0, x1)
+x2
+
+##################################################################
+#Creating New Variables
+
+# Computing composite variables
+
+# Create variable rn1 with 1 million random normal values
+rn1 <- rnorm(1000000)
+hist(rn1)
+summary(rn1)
+
+# Create variable rn2 with 1 million random normal values
+rn2 <- rnorm(1000000)
+hist(rn2)
+summary(rn2)
+
+# Average scores across two variables
+rn.mean <- (rn1 + rn2)/2
+hist(rn.mean)
+
+# Multiply scores across two variables
+rn.prod <- rn1 * rn2
+hist(rn.prod)
+summary(rn.prod)
+
+remove(rn1)
+
+######################################################################
+# Correlations
+
+require("Hmisc")
+
+# Load data
+data(swiss)
+
+# Correlation matrix for data frame
+round(cor(swiss), 2)  # Rounded to 2 decimals
+
+# Can test one pair of variables at a time
+cor.test(swiss$Fertility, swiss$Education)
+
+# to get correlation matrix and p-values
+rcorr(as.matrix(swiss))
+
+##########################################################################
+# ANOVA
+
+# Create Sample Data
+x1 <- rnorm(30, mean = 40, sd = 8)
+x2 <- rnorm(30, mean = 41, sd = 8)
+x3 <- rnorm(30, mean = 45, sd = 8)
+x4 <- rnorm(30, mean = 45, sd = 8)
+
+boxplot(x1, x2, x3, x4)  # Quick graphical check
+
+# Combine into a single data frame
+xdf <- data.frame(cbind(x1, x2, x3, x4))
+summary(xdf)
+
+# Stack data to get one column with outcome
+# and second columns with group
+xs <- stack(xdf)
+
+# Conduct one-way ANOVA
+anova1 <- aov(values ~ ind, data = xs)
+anova1
+summary(anova1)
+
+# Post-hoc comparisons
+TukeyHSD(anova1)
+########################################################################
+# Multiple Regression
+
+# Load data
+data(USJudgeRatings)
+USJudgeRatings[1:5, ]
+
+# Basic multiple regression
+reg1 <- lm(RTEN ~ CONT + INTG + DMNR + DILG + CFMG + 
+             DECI + PREP + FAMI + ORAL + WRIT + PHYS,
+           data = USJudgeRatings)
+reg1  # Gives the coefficients only
+summary(reg1)  # Much more
+########################################################################
+# Data Visualizations
+# Creating Bar Charts
+
+# Load data
+spray <- InsectSprays  # Load data with shorter name
+
+# To plot means, first get the means for the groups 
+means <- aggregate(spray$count ~ spray$spray, FUN = mean)
+means
+plot(means)  # Gets lines for means
+
+# To get a barplot, need to extract means and reorganize
+mean.data <- t(means[-1])  # Removes first columns, transposes second
+colnames(mean.data) <- means[, 1]
+
+# Modified barplot
+barplot(mean.data,
+        col = "lightblue",
+        main = "Effectiveness of Insect Sprays",
+        xlab = "Spray Used",
+        ylab = "Insect Count")
+############################################################################
+#Histogram
+
+# LOAD DATA
+require("datasets")
+data(lynx)
+
+# Modify histogram
+h <- hist(lynx,  # Save histogram as object
+          breaks = 11,  # "Suggests" 11 bins
+          #           breaks = seq(0, 7000, by = 100),
+          #           breaks = c(0, 100, 300, 500, 3000, 3500, 7000),
+          freq = FALSE,
+          col = "thistle1", # Or use: col = colors() [626]
+          main = "Histogram of Annual Canadian Lynx Trappings\n1821-1934",
+          xlab = "Number of Lynx Trapped")
+
+# IF freq = FALSE, this will draw normal distribution
+curve(dnorm(x, mean = mean(lynx), sd = sd(lynx)), 
+      col = "thistle4", 
+      lwd = 2,
+      add = TRUE)
+############################################################################
+# Boxplots
+
+# Load data
+require(MASS)
+data(painters)
+
+# Modified version
+require("RColorBrewer")
+boxplot(painters$Expression ~ painters$School,
+        col = brewer.pal(8, "Pastel2"),
+        names  = c("Renais.",
+                   "Mannerist",
+                   "Seicento",
+                   "Venetian",
+                   "Lombard",
+                   "16th C.",
+                   "17th C.",
+                   "French"),
+        boxwex = 0.5,  # Width of box
+        whisklty = 1,  # Whisker line type; 1 = solid line
+        staplelty = 0,  # Staple type; 0 = none
+        outpch = 16,  # Outlier symbol; 16 = filled circle
+        outcol = brewer.pal(8, "Pastel2"),  # Outlier color
+        main = "Expression Ratings of Painters by School\nFrom \"painters\" Dataset in \"MASS\" Package",
+        xlab = "Painter's School",
+        ylab = "Expression Ratings")
+###########################################################################
+# Scatterplots
+
+# Load data
+data(cars)
+
+# Modified scatterplot
+plot(cars,
+     pch = 16,
+     col = "gray",
+     main = "Speed vs. Stopping Distance for Cars in 1920s\nFrom \"cars\" Dataset",
+     xlab = "Speed (MPH)",
+     ylab = "Stopping Distance (feet)")
+# Linear regression line
+abline(lm(cars$dist ~ cars$speed), 
+       col = "darkred", 
+       lwd = 2)  
+# "locally weighted scatterplot smoothing"
+lines(lowess (cars$speed, cars$dist), 
+      col = "blue", 
+      lwd = 2)  
+############################################################################
+edit(swiss)
